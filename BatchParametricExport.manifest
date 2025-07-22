@@ -1,0 +1,13 @@
+{
+	"autodeskProduct":	"Fusion360",
+	"type":	"addin",
+	"id":	"BatchParametricExport",
+	"author":	"",
+	"description":	{
+		"":	"用于Fusion360参数化批量一键导出的插件"
+	},
+	"version":	"1.0.0",
+	"runOnStartup":	false,
+	"supportedOS":	"windows|mac",
+	"editEnabled":	true
+} 
