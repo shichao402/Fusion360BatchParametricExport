@@ -1,0 +1,2 @@
+# Fusion360BatchParametricExport
+用于fusion360参数化批量一键导出
