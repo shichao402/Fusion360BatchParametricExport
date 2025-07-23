@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+本项目是fusion360的扩展. 做出修改时应该优先阅读fusion360文档寻找标准实现方法. 不要猜测性的实现.
