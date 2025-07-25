@@ -17,6 +17,8 @@
    - 在弹出的对话框中点击“脚本”选项卡
    - 点击“添加”按钮，选择本插件文件夹
    - 插件会出现在脚本列表中
+   - 你需要确保"运行"开关是打开的
+   - 如果长期使用, 建议勾选启动时运行
 2. **手动复制到插件目录**
    - Windows: `%appdata%\Autodesk\Autodesk Fusion 360\API\Scripts`
    - Mac: `~/Library/Application Support/Autodesk/Autodesk Fusion 360/API/Scripts`
@@ -56,6 +58,7 @@ BatchParametricExport/
 1. 在 Fusion360 中打开包含多个零件的设计
 2. 将需要批量修改的参数设置为“收藏”（标星）
 3. 启动插件，点击“📤 导出模板”按钮，生成包含所有标星参数的 Excel 模板
+    > 插件入口：在 Fusion360 顶部菜单栏依次点击 “实用程序” => “附加模块” => “批量参数化导出” 即可打开插件UI。
 4. 在 Excel 文件中编辑配置（导出格式、名称、参数值等）
 5. 保存 Excel 文件，在插件中点击“导出”按钮，自动读取 Excel 配置并批量导出
 
