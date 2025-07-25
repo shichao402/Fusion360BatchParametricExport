@@ -26,7 +26,7 @@ class ExportManager:
                 LogUtils.error(f'导出路径无效: {export_path}')
                 return False
                 
-            if not custom_name or not custom_name.strip() == '':
+            if not custom_name or not custom_name.strip():
                 LogUtils.error('自定义名称不能为空')
                 return False
             
@@ -51,6 +51,7 @@ class ExportManager:
                 if root_component.bRepBodies.count > 0:
                     if progress_callback:
                         progress_callback(root_component.name)
+                        adsk.doEvents()
                     # 直接导出根组件
                     return self._export_single_format(export_mgr, export_path, export_format, custom_name, root_component.name, None)
                 else:
@@ -81,6 +82,7 @@ class ExportManager:
                     # 导出当前可见的组件
                     if progress_callback:
                         progress_callback(comp_name)
+                        adsk.doEvents()
                     result = self._export_single_format(export_mgr, export_path, export_format, custom_name, comp_name, occurrence)
                     
                     if result:

@@ -85,12 +85,11 @@ class CommandExecuteHandler(adsk.core.CommandEventHandler):
                     'custom_name': config.get('name', ''),
                     'parameters': config.get('parameters', {})
                 }
-                
-                # 验证必要字段
-                if not export_config['custom_name']:
+                # 验证必要字段，去除空格
+                if not export_config['custom_name'] or not export_config['custom_name'].strip():
                     LogUtils.error('配置中自定义名称不能为空')
                     continue
-                    
+                export_config['custom_name'] = export_config['custom_name'].strip()
                 export_configs.append(export_config)
             
             LogUtils.info(f'从Excel文件读取了 {len(export_configs)} 个有效配置')

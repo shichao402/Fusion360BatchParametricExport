@@ -69,23 +69,34 @@ class BatchParametricExportCommand:
                 LogUtils.error('无法获取当前设计')
                 return
             original_params = self.parameter_manager.backup_parameters(design)
+            # 统计所有要导出的零件总数
+            total_parts = 0
+            for config in export_configs:
+                root_component = design.rootComponent
+                child_count = len(list(root_component.occurrences))
+                if child_count == 0 and root_component.bRepBodies.count > 0:
+                    total_parts += 1
+                else:
+                    total_parts += child_count
             progress_dialog = ui.createProgressDialog()
             progress_dialog.cancelButtonText = '取消'
             progress_dialog.isBackgroundTranslucent = False
             progress_dialog.isCancelButtonShown = True
-            # 拉宽窗口：标题和消息都加长
-            progress_dialog.show('批量导出 - Fusion360BatchParametricExport', '准备导出，请稍候...\n', 0, len(export_configs))
+            progress_dialog.show('批量导出 - Fusion360BatchParametricExport', '准备导出，请稍候...\n', 0, total_parts)
             adsk.doEvents()
             exported_count = 0
-            def update_progress(doc_name, part_name, idx):
-                progress_dialog.progressValue = idx
+            part_progress = 0
+            def update_progress(doc_name, part_name):
+                nonlocal part_progress
+                progress_dialog.progressValue = part_progress
                 progress_dialog.message = f'正在导出文档: {doc_name}\n当前零件: {part_name}'
                 adsk.doEvents()
+                part_progress += 1
             try:
-                for i, config in enumerate(export_configs):
+                for config in export_configs:
                     if progress_dialog.wasCancelled:
                         break
-                    progress_dialog.progressValue = i
+                    # 这里不再设置progress_dialog.progressValue = i
                     progress_dialog.message = f'正在导出文档: {config["custom_name"]}\n准备导出...'
                     param_applied = self.parameter_manager.apply_parameters(design, config['parameters'])
                     if param_applied:
@@ -98,7 +109,7 @@ class BatchParametricExportCommand:
                             continue
                         export_success = self.export_manager.export_design(
                             design, sub_dir, config['format'], config['custom_name'],
-                            lambda part_name: update_progress(config['custom_name'], part_name, i)
+                            lambda part_name: update_progress(config['custom_name'], part_name)
                         )
                         if export_success:
                             exported_count += 1
