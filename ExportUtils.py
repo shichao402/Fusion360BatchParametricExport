@@ -6,6 +6,7 @@
 import adsk.core
 import adsk.fusion
 import os
+from .LogUtils import LogUtils
 
 class ExportManager:
     """导出管理器"""
@@ -18,22 +19,22 @@ class ExportManager:
         """使用可见性控制导出设计中的所有子组件（每个零件单独导出）"""
         try:
             if not design:
-                self.ui.messageBox('设计对象无效')
+                LogUtils.error('设计对象无效')
                 return False
                 
             if not export_path or not os.path.exists(export_path):
-                self.ui.messageBox(f'导出路径无效: {export_path}')
+                LogUtils.error(f'导出路径无效: {export_path}')
                 return False
                 
             if not custom_name or custom_name.strip() == '':
-                self.ui.messageBox('自定义名称不能为空')
+                LogUtils.error('自定义名称不能为空')
                 return False
             
             export_mgr = design.exportManager
             root_component = design.rootComponent
             
             if not export_mgr or not root_component:
-                self.ui.messageBox('无法获取导出管理器或根组件')
+                LogUtils.error('无法获取导出管理器或根组件')
                 return False
             
             # 获取所有子组件（这是正确的方法）
@@ -51,7 +52,7 @@ class ExportManager:
                     # 直接导出根组件
                     return self._export_single_format(export_mgr, export_path, export_format, custom_name, root_component.name, None)
                 else:
-                    self.ui.messageBox('设计中没有找到可导出的零件')
+                    LogUtils.warn('设计中没有找到可导出的零件')
                     return False
             
             # 记录原始可见性（使用lightBulb状态）
@@ -97,7 +98,7 @@ class ExportManager:
             return export_success_count > 0
                 
         except Exception as e:
-            self.ui.messageBox(f'导出时发生错误:\n{str(e)}')
+            LogUtils.error(f'导出时发生错误: {str(e)}')
             return False
     
     def _export_single_format(self, export_mgr, export_path, export_format, custom_name, comp_name, occurrence):
@@ -715,9 +716,10 @@ class ParameterManager:
             #     debug_msg += f'\n{i+1}. {param["name"]} = {param["expression"]}'
             # 
             # self.ui.messageBox(f'调试信息:\n{debug_msg}')
+            # LogUtils.info(f'调试信息: {debug_msg}')
                     
         except Exception as e:
-            self.ui.messageBox(f'获取参数时发生错误:\n{str(e)}')
+            LogUtils.error(f'获取参数时发生错误: {str(e)}')
             
         return parameters
     
@@ -793,12 +795,12 @@ class ParameterManager:
             design.computeAll()
             
             if success_count < total_count:
-                self.ui.messageBox(f'警告: 只有 {success_count}/{total_count} 个参数被成功应用')
+                LogUtils.warn(f'警告: 只有 {success_count}/{total_count} 个参数被成功应用')
             
             return success_count > 0
             
         except Exception as e:
-            self.ui.messageBox(f'应用参数时发生错误:\n{str(e)}')
+            LogUtils.error(f'应用参数时发生错误: {str(e)}')
             return False
     
     def backup_parameters(self, design):
@@ -813,7 +815,7 @@ class ParameterManager:
                     backup[param.name] = param.expression
                     
         except Exception as e:
-            self.ui.messageBox(f'备份参数时发生错误:\n{str(e)}')
+            LogUtils.error(f'备份参数时发生错误: {str(e)}')
             
         return backup
     
@@ -832,5 +834,5 @@ class ParameterManager:
             return True
             
         except Exception as e:
-            self.ui.messageBox(f'恢复参数时发生错误:\n{str(e)}')
+            LogUtils.error(f'恢复参数时发生错误: {str(e)}')
             return False 
