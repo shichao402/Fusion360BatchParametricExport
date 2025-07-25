@@ -2,13 +2,16 @@ import datetime
 import os
 
 class LogUtils:
-    LOG_FILE = os.path.join(os.path.dirname(__file__), 'Fusion360BatchExport.log')
+    LOG_DIR = os.path.join(os.path.dirname(__file__), 'logs')
+    LOG_FILE = os.path.join(LOG_DIR, 'Fusion360BatchExport.log')
 
     @staticmethod
     def log(msg, level='INFO'):
         log_str = f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] [{level}] {msg}"
         print(log_str, flush=True)
         try:
+            if not os.path.exists(LogUtils.LOG_DIR):
+                os.makedirs(LogUtils.LOG_DIR)
             with open(LogUtils.LOG_FILE, 'a', encoding='utf-8') as f:
                 f.write(log_str + '\n')
         except Exception as e:

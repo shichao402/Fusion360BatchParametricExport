@@ -72,3 +72,4 @@ coverage.xml
 # 忽略pytest临时文件
 .cache/
 .pytest_cache/
+logs/
