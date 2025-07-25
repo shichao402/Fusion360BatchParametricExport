@@ -73,14 +73,20 @@ class BatchParametricExportCommand:
             progress_dialog.cancelButtonText = '取消'
             progress_dialog.isBackgroundTranslucent = False
             progress_dialog.isCancelButtonShown = True
-            progress_dialog.show('批量导出', '准备导出...', 0, len(export_configs))
+            # 拉宽窗口：标题和消息都加长
+            progress_dialog.show('批量导出 - Fusion360BatchParametricExport', '准备导出，请稍候...\n', 0, len(export_configs))
+            adsk.doEvents()
             exported_count = 0
+            def update_progress(doc_name, part_name, idx):
+                progress_dialog.progressValue = idx
+                progress_dialog.message = f'正在导出文档: {doc_name}\n当前零件: {part_name}'
+                adsk.doEvents()
             try:
                 for i, config in enumerate(export_configs):
                     if progress_dialog.wasCancelled:
                         break
                     progress_dialog.progressValue = i
-                    progress_dialog.message = f'正在导出: {config["custom_name"]}'
+                    progress_dialog.message = f'正在导出文档: {config["custom_name"]}\n准备导出...'
                     param_applied = self.parameter_manager.apply_parameters(design, config['parameters'])
                     if param_applied:
                         sub_dir = os.path.join(export_path, config['custom_name'])
@@ -90,7 +96,10 @@ class BatchParametricExportCommand:
                         except Exception as e:
                             LogUtils.error(f'创建目录失败: {sub_dir} {str(e)}')
                             continue
-                        export_success = self.export_manager.export_design(design, sub_dir, config['format'], config['custom_name'])
+                        export_success = self.export_manager.export_design(
+                            design, sub_dir, config['format'], config['custom_name'],
+                            lambda part_name: update_progress(config['custom_name'], part_name, i)
+                        )
                         if export_success:
                             exported_count += 1
                     adsk.doEvents()

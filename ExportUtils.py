@@ -15,7 +15,7 @@ class ExportManager:
         self.app = adsk.core.Application.get()
         self.ui = self.app.userInterface
     
-    def export_design(self, design, export_path, export_format, custom_name):
+    def export_design(self, design, export_path, export_format, custom_name, progress_callback=None):
         """使用可见性控制导出设计中的所有子组件（每个零件单独导出）"""
         try:
             if not design:
@@ -26,7 +26,7 @@ class ExportManager:
                 LogUtils.error(f'导出路径无效: {export_path}')
                 return False
                 
-            if not custom_name or custom_name.strip() == '':
+            if not custom_name or not custom_name.strip() == '':
                 LogUtils.error('自定义名称不能为空')
                 return False
             
@@ -49,6 +49,8 @@ class ExportManager:
             if not child_components:
                 # 如果没有子组件，检查根组件是否有实体
                 if root_component.bRepBodies.count > 0:
+                    if progress_callback:
+                        progress_callback(root_component.name)
                     # 直接导出根组件
                     return self._export_single_format(export_mgr, export_path, export_format, custom_name, root_component.name, None)
                 else:
@@ -77,6 +79,8 @@ class ExportManager:
                     occurrence.isLightBulbOn = True
                     
                     # 导出当前可见的组件
+                    if progress_callback:
+                        progress_callback(comp_name)
                     result = self._export_single_format(export_mgr, export_path, export_format, custom_name, comp_name, occurrence)
                     
                     if result:
