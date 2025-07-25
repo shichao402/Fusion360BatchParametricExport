@@ -1,2 +1,74 @@
 __pycache__
 *.pyc
+# 忽略常见临时文件和系统文件
+.DS_Store
+Thumbs.db
+*.log
+*.bak
+*.tmp
+*.swp
+*.swo
+
+# 忽略虚拟环境
+venv/
+env/
+ENV/
+.venv/
+.python-version
+
+# 忽略IDE配置
+.vscode/
+.idea/
+*.code-workspace
+
+# 忽略打包/构建输出
+dist/
+build/
+*.egg-info/
+
+# 忽略Excel临时文件
+~$*.xlsx
+~$*.xls
+# 忽略常见Python项目文件
+*.pyo
+*.pyd
+*.pdb
+*.so
+*.egg
+*.egg-info/
+.eggs/
+pip-log.txt
+pip-delete-this-directory.txt
+__pypackages__/
+.pytest_cache/
+.tox/
+.coverage
+.cache
+.nox/
+.mypy_cache/
+.pyre/
+.pytype/
+.hypothesis/
+*.cover
+htmlcov/
+.coverage.*
+nosetests.xml
+coverage.xml
+*.manifest
+*.spec
+*.pot
+*.mo
+
+# 忽略Jupyter Notebook检查点
+.ipynb_checkpoints
+
+# 忽略本地配置
+*.env
+.env.*
+*.ini
+*.cfg
+*.toml
+
+# 忽略pytest临时文件
+.cache/
+.pytest_cache/
