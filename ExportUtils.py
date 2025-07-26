@@ -797,6 +797,22 @@ class ParameterManager:
                 except:
                     pass
             
+            # 触发ParametricText插件更新事件
+            try:
+                app = adsk.core.Application.get()
+                app.fireCustomEvent('thomasa88_ParametricText_Ext_Update')
+                LogUtils.info('已触发ParametricText更新事件')
+            except Exception as e:
+                LogUtils.warn(f'触发ParametricText更新事件失败: {str(e)}')
+            
+            # 等待ParametricText插件处理完成
+            try:
+                import time
+                time.sleep(1)  # 等待1秒让ParametricText完成更新
+                LogUtils.info('等待ParametricText更新完成')
+            except Exception as e:
+                LogUtils.warn(f'等待ParametricText更新时发生错误: {str(e)}')
+            
             # 重新计算设计
             design.computeAll()
             
@@ -834,6 +850,22 @@ class ParameterManager:
                 param = user_params.itemByName(param_name)
                 if param:
                     param.expression = param_value
+            
+            # 触发ParametricText插件更新事件
+            try:
+                app = adsk.core.Application.get()
+                app.fireCustomEvent('thomasa88_ParametricText_Ext_Update')
+                LogUtils.info('已触发ParametricText更新事件（参数恢复）')
+            except Exception as e:
+                LogUtils.warn(f'触发ParametricText更新事件失败（参数恢复）: {str(e)}')
+            
+            # 等待ParametricText插件处理完成
+            try:
+                import time
+                time.sleep(1)  # 等待1秒让ParametricText完成更新
+                LogUtils.info('等待ParametricText更新完成（参数恢复）')
+            except Exception as e:
+                LogUtils.warn(f'等待ParametricText更新时发生错误（参数恢复）: {str(e)}')
             
             # 重新计算设计
             design.computeAll()
