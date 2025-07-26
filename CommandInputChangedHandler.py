@@ -27,7 +27,7 @@ class CommandInputChangedHandler(adsk.core.InputChangedEventHandler):
                     current_path = CacheUtils.load_cached_export_path()
                     if current_path and os.path.exists(current_path):
                         folderDialog.initialDirectory = current_path
-                    dialogResult = folderDialog.show()
+                    dialogResult = folderDialog.showDialog()
                     if dialogResult == adsk.core.DialogResults.DialogOK:
                         path_group = cmd_inputs.itemById('pathGroup')
                         if path_group:
