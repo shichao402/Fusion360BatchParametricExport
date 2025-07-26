@@ -31,14 +31,25 @@ class CommandCreatedEventHandler(adsk.core.CommandCreatedEventHandler):
                 path_group = inputs.addGroupCommandInput('pathGroup', '📁 导出路径设置')
                 path_group.isExpanded = True
                 pathInputs = path_group.children
-                cached_path = CacheUtils.load_cached_export_path()
+            except Exception as e:
+                path_group = None
+                pathInputs = inputs
+
+            cached_path = CacheUtils.load_cached_export_path()
+            cached_ignore_version = CacheUtils.load_cached_ignore_version()
+            LogUtils.info(f'加载忽略版本号设置: {cached_ignore_version}')
+
+            if path_group:
                 pathInputs.addStringValueInput('exportPath', '导出路径', cached_path)
                 pathInputs.addBoolValueInput('selectPath', '🔍 选择路径...', False)
-                cached_ignore_version = CacheUtils.load_cached_ignore_version()
-                pathInputs.addBoolValueInput('ignoreVersionInDocName', '忽略文档版本号（仅用主名）', cached_ignore_version)
-            except Exception as e:
-                inputs.addStringValueInput('exportPath', '导出路径', CacheUtils.load_cached_export_path())
+                ignore_checkbox = pathInputs.addBoolValueInput('ignoreVersionInDocName', '忽略文档版本号（仅用主名）', True, '', cached_ignore_version)
+            else:
+                inputs.addStringValueInput('exportPath', '导出路径', cached_path)
                 inputs.addBoolValueInput('selectPath', '🔍 选择路径...', False)
+                ignore_checkbox = inputs.addBoolValueInput('ignoreVersionInDocName', '忽略文档版本号（仅用主名）', True, '', cached_ignore_version)
+
+            # 强制刷新控件状态，防止UI复用导致状态不同步
+            ignore_checkbox.value = cached_ignore_version
             
             # 移除关于插件说明和支持格式的说明文本（即description相关的addTextBoxCommandInput）
             
