@@ -60,7 +60,14 @@ class CommandCreatedEventHandler(adsk.core.CommandCreatedEventHandler):
             param_info = f"当前标星参数 (共{param_count}个):\n"
             if param_count > 0:
                 for param in self.batch_exporter.parameters:
-                    param_info += f"- {param['name']}: {param['expression']}\n"
+                    comment = param.get('comment', '').strip()
+                    if comment:
+                        # 限制注释长度，避免显示过长
+                        if len(comment) > 50:
+                            comment = comment[:47] + '...'
+                        param_info += f"- {param['name']} ({comment}): {param['expression']}\n"
+                    else:
+                        param_info += f"- {param['name']}: {param['expression']}\n"
             else:
                 param_info += "❌ 未找到任何标星参数\n请确保在参数面板中将参数标星（收藏）"
             # 添加参数信息到最末尾，最大高度300，超出显示滚动条

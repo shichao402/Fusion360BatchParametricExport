@@ -35,6 +35,8 @@ class CommandExecuteHandler(adsk.core.CommandEventHandler):
             
             # 从Excel文件读取配置
             export_configs = self.collect_export_configs_from_excel(inputs)
+            if export_configs is None:  # 读取失败
+                return
             if not export_configs:
                 ui.messageBox('❌ 请先创建Excel配置文件并添加至少一组导出配置')
                 return
@@ -72,6 +74,9 @@ class CommandExecuteHandler(adsk.core.CommandEventHandler):
             
             # 从Excel文件读取配置
             configs = ConfigUtils.read_configs_from_excel(excel_path, self.batch_exporter.parameters)
+            
+            if configs is None:  # 读取失败，错误信息已在read_configs_from_excel中显示
+                return None
             
             if not configs:
                 LogUtils.error('Excel文件中没有找到有效配置')
