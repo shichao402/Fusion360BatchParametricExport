@@ -68,6 +68,8 @@ class BatchParametricExportCommand:
             if not design:
                 LogUtils.error('无法获取当前设计')
                 return
+            # 获取当前文档名（用于目录）
+            doc_name = app.activeDocument.name if app.activeDocument else 'Unnamed'
             original_params = self.parameter_manager.backup_parameters(design)
             # 统计所有要导出的零件总数
             total_parts = 0
@@ -96,12 +98,15 @@ class BatchParametricExportCommand:
                 for config in export_configs:
                     if progress_dialog.wasCancelled:
                         break
-                    # 这里不再设置progress_dialog.progressValue = i
                     progress_dialog.message = f'正在导出文档: {config["custom_name"]}\n准备导出...'
                     param_applied = self.parameter_manager.apply_parameters(design, config['parameters'])
                     if param_applied:
-                        sub_dir = os.path.join(export_path, config['custom_name'])
+                        # 创建目录结构：导出路径/文档名/配置名
+                        doc_dir = os.path.join(export_path, doc_name)
+                        sub_dir = os.path.join(doc_dir, config['custom_name'])
                         try:
+                            if not os.path.exists(doc_dir):
+                                os.makedirs(doc_dir)
                             if not os.path.exists(sub_dir):
                                 os.makedirs(sub_dir)
                         except Exception as e:
@@ -128,7 +133,8 @@ class BatchParametricExportCommand:
                 result_msg += '- 参数值无效\n'
                 result_msg += '- 导出路径权限不足\n'
                 result_msg += '- 模型中没有可导出的实体\n\n'
-            result_msg += f'导出路径: {export_path}\n\n'
+            result_msg += f'导出路径: {export_path}\n'
+            result_msg += f'文档目录: {doc_name}\n\n'
             if exported_count > 0:
                 result_msg += '请检查导出目录中的文件。'
             else:
