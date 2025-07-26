@@ -98,6 +98,11 @@ class CommandInputChangedHandler(adsk.core.InputChangedEventHandler):
                         CacheUtils.save_cached_export_path(changedInput.value)
                 except Exception as e:
                     pass
+            elif changedInput.id == 'ignoreVersionInDocName':
+                try:
+                    CacheUtils.save_cached_ignore_version(changedInput.value)
+                except Exception as e:
+                    LogUtils.warn(f'保存忽略版本号设置失败: {str(e)}')
             elif changedInput.id == 'batchExport':
                 if changedInput.value:
                     try:

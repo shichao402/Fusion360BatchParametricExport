@@ -66,4 +66,30 @@ class CacheUtils:
                     return cache_data.get('excel_path', '')
         except:
             pass
-        return '' 
+        return ''
+
+    @staticmethod
+    def save_cached_ignore_version(ignore_version):
+        try:
+            cache_file = CacheUtils.get_cache_file_path()
+            cache_data = {}
+            if cache_file and os.path.exists(cache_file):
+                with open(cache_file, 'r', encoding='utf-8') as f:
+                    cache_data = json.load(f)
+            cache_data['ignore_version'] = ignore_version
+            with open(cache_file, 'w', encoding='utf-8') as f:
+                json.dump(cache_data, f, ensure_ascii=False, indent=2)
+        except:
+            pass
+
+    @staticmethod
+    def load_cached_ignore_version():
+        try:
+            cache_file = CacheUtils.get_cache_file_path()
+            if cache_file and os.path.exists(cache_file):
+                with open(cache_file, 'r', encoding='utf-8') as f:
+                    cache_data = json.load(f)
+                    return cache_data.get('ignore_version', True)  # 默认值为True
+        except:
+            pass
+        return True  # 默认值为True 

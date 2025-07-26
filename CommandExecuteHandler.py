@@ -48,6 +48,12 @@ class CommandExecuteHandler(adsk.core.CommandEventHandler):
             except Exception as e:
                 LogUtils.warn(f'获取忽略版本号设置失败: {str(e)}')
             
+            # 保存忽略版本号设置到缓存
+            try:
+                CacheUtils.save_cached_ignore_version(ignore_version)
+            except Exception as e:
+                LogUtils.warn(f'保存忽略版本号设置失败: {str(e)}')
+            
             # 从Excel文件读取配置
             export_configs = self.collect_export_configs_from_excel(inputs)
             if export_configs is None:  # 读取失败
