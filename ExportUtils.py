@@ -778,12 +778,19 @@ class ParameterManager:
             success_count = 0
             total_count = len(parameters)
             
+            # 记录原始参数值用于验证
+            original_values = {}
+            
             for param_name, param_value in parameters.items():
                 # 首先尝试用户参数
                 user_param = design.userParameters.itemByName(param_name)
                 if user_param:
+                    # 记录原始值
+                    original_values[param_name] = user_param.expression
+                    # 应用新值
                     user_param.expression = str(param_value)
                     success_count += 1
+                    LogUtils.info(f'应用参数: {param_name} = {param_value} (原值: {original_values[param_name]})')
                     continue
                 
                 # 如果不是用户参数，尝试在所有参数中查找
@@ -791,11 +798,22 @@ class ParameterManager:
                     all_params = design.allParameters
                     for param in all_params:
                         if param.name == param_name:
+                            # 记录原始值
+                            original_values[param_name] = param.expression
+                            # 应用新值
                             param.expression = str(param_value)
                             success_count += 1
+                            LogUtils.info(f'应用参数: {param_name} = {param_value} (原值: {original_values[param_name]})')
                             break
                 except:
                     pass
+            
+            # 强制重新计算设计
+            try:
+                design.computeAll()
+                LogUtils.info('设计重新计算完成')
+            except Exception as e:
+                LogUtils.warn(f'设计重新计算失败: {str(e)}')
             
             # 触发ParametricText插件更新事件
             try:
@@ -808,16 +826,35 @@ class ParameterManager:
             # 等待ParametricText插件处理完成
             try:
                 import time
-                time.sleep(1)  # 等待1秒让ParametricText完成更新
+                time.sleep(2)  # 增加等待时间到2秒
                 LogUtils.info('等待ParametricText更新完成')
             except Exception as e:
                 LogUtils.warn(f'等待ParametricText更新时发生错误: {str(e)}')
             
-            # 重新计算设计
-            design.computeAll()
+            # 再次强制重新计算设计
+            try:
+                design.computeAll()
+                LogUtils.info('最终设计重新计算完成')
+            except Exception as e:
+                LogUtils.warn(f'最终设计重新计算失败: {str(e)}')
+            
+            # 验证参数是否真的被应用
+            verification_count = 0
+            for param_name, expected_value in parameters.items():
+                try:
+                    user_param = design.userParameters.itemByName(param_name)
+                    if user_param and str(user_param.expression).strip() == str(expected_value).strip():
+                        verification_count += 1
+                    else:
+                        LogUtils.warn(f'参数验证失败: {param_name}, 期望: {expected_value}, 实际: {user_param.expression if user_param else "未找到"}')
+                except:
+                    pass
             
             if success_count < total_count:
                 LogUtils.warn(f'警告: 只有 {success_count}/{total_count} 个参数被成功应用')
+            
+            if verification_count < success_count:
+                LogUtils.warn(f'警告: 只有 {verification_count}/{success_count} 个参数被正确验证')
             
             return success_count > 0
             
@@ -850,6 +887,14 @@ class ParameterManager:
                 param = user_params.itemByName(param_name)
                 if param:
                     param.expression = param_value
+                    LogUtils.info(f'恢复参数: {param_name} = {param_value}')
+            
+            # 强制重新计算设计
+            try:
+                design.computeAll()
+                LogUtils.info('参数恢复后设计重新计算完成')
+            except Exception as e:
+                LogUtils.warn(f'参数恢复后设计重新计算失败: {str(e)}')
             
             # 触发ParametricText插件更新事件
             try:
@@ -862,13 +907,18 @@ class ParameterManager:
             # 等待ParametricText插件处理完成
             try:
                 import time
-                time.sleep(1)  # 等待1秒让ParametricText完成更新
+                time.sleep(2)  # 增加等待时间到2秒
                 LogUtils.info('等待ParametricText更新完成（参数恢复）')
             except Exception as e:
                 LogUtils.warn(f'等待ParametricText更新时发生错误（参数恢复）: {str(e)}')
             
-            # 重新计算设计
-            design.computeAll()
+            # 再次强制重新计算设计
+            try:
+                design.computeAll()
+                LogUtils.info('参数恢复后最终设计重新计算完成')
+            except Exception as e:
+                LogUtils.warn(f'参数恢复后最终设计重新计算失败: {str(e)}')
+            
             return True
             
         except Exception as e:

@@ -117,6 +117,21 @@ class BatchParametricExportCommand:
                         break
                     progress_dialog.message = f'正在导出文档: {config["custom_name"]}\n准备导出...'
                     param_applied = self.parameter_manager.apply_parameters(design, config['parameters'])
+                    
+                    # 验证参数应用结果
+                    if param_applied:
+                        # 记录当前参数状态用于调试
+                        LogUtils.info(f'配置 {config["custom_name"]} 参数应用成功')
+                        for param_name, param_value in config['parameters'].items():
+                            try:
+                                user_param = design.userParameters.itemByName(param_name)
+                                if user_param:
+                                    LogUtils.info(f'参数验证: {param_name} = {user_param.expression} (期望: {param_value})')
+                            except:
+                                pass
+                    else:
+                        LogUtils.error(f'配置 {config["custom_name"]} 参数应用失败')
+                    
                     if param_applied:
                         # 创建目录结构：导出路径/文档名/配置名
                         doc_dir = os.path.join(export_path, doc_name)

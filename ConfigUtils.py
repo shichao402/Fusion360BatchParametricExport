@@ -116,11 +116,21 @@ class ConfigUtils:
                     'parameters': {}
                 }
                 
-                # 读取参数值
-                for col, param in enumerate(parameters, 3):
+                # 读取参数值 - 按参数名匹配，而不是按位置
+                # 获取Excel表头中的参数名
+                excel_param_headers = []
+                for col in range(3, ws.max_column + 1):  # 从第3列开始（跳过导出格式和自定义名称）
+                    header_value = ws.cell(row=1, column=col).value
+                    if header_value:
+                        param_name = ConfigUtils._extract_param_name_from_header(str(header_value).strip())
+                        excel_param_headers.append((col, param_name))
+                
+                # 按参数名匹配读取值
+                for col, excel_param_name in excel_param_headers:
                     param_value = ws.cell(row=row, column=col).value
                     if param_value is not None:
-                        config['parameters'][param['name']] = str(param_value)
+                        config['parameters'][excel_param_name] = str(param_value)
+                        LogUtils.info(f'读取参数: {excel_param_name} = {param_value}')
                 
                 configs.append(config)
             
