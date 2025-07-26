@@ -59,7 +59,7 @@ class BatchParametricExportCommand:
             if ui:
                 LogUtils.error('创建对话框时发生错误: {}'.format(traceback.format_exc()))
 
-    def execute_batch_export(self, export_configs, export_path):
+    def execute_batch_export(self, export_configs, export_path, ignore_version=False):
         try:
             app = adsk.core.Application.get()
             product = app.activeProduct
@@ -70,6 +70,23 @@ class BatchParametricExportCommand:
                 return
             # 获取当前文档名（用于目录）
             doc_name = app.activeDocument.name if app.activeDocument else 'Unnamed'
+            
+            # 使用传入的ignore_version参数
+            
+            # 如果勾选了忽略版本号，则去除文档名中的版本号
+            if ignore_version and doc_name:
+                import re
+                # 去除常见的版本号格式，如 " xxx v13"、" xxx_v13"、" xxx-v13"、" [xxx v13]"
+                # 支持多种分隔符和方括号格式
+                original_name = doc_name
+                # 先去除方括号
+                doc_name = re.sub(r'^\[(.*)\]$', r'\1', doc_name)
+                # 再去除版本号
+                doc_name = re.sub(r'([ _\-]?v\d+)$', '', doc_name, flags=re.IGNORECASE).strip()
+                # 如果处理后的名称为空，则使用原名称
+                if not doc_name:
+                    doc_name = original_name
+                LogUtils.info(f'文档名处理: "{original_name}" -> "{doc_name}"')
             original_params = self.parameter_manager.backup_parameters(design)
             # 统计所有要导出的零件总数
             total_parts = 0

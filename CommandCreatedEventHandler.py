@@ -34,6 +34,7 @@ class CommandCreatedEventHandler(adsk.core.CommandCreatedEventHandler):
                 cached_path = CacheUtils.load_cached_export_path()
                 pathInputs.addStringValueInput('exportPath', '导出路径', cached_path)
                 pathInputs.addBoolValueInput('selectPath', '🔍 选择路径...', False)
+                pathInputs.addBoolValueInput('ignoreVersionInDocName', '忽略文档版本号（仅用主名）', True)
             except Exception as e:
                 inputs.addStringValueInput('exportPath', '导出路径', CacheUtils.load_cached_export_path())
                 inputs.addBoolValueInput('selectPath', '🔍 选择路径...', False)

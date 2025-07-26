@@ -117,6 +117,22 @@ class CommandInputChangedHandler(adsk.core.InputChangedEventHandler):
                             changedInput.value = False
                             return
                         CacheUtils.save_cached_export_path(export_path)
+                        
+                        # 获取忽略版本号设置
+                        ignore_version = False
+                        try:
+                            path_group = cmd_inputs.itemById('pathGroup')
+                            if path_group:
+                                ignore_input = path_group.children.itemById('ignoreVersionInDocName')
+                                if ignore_input:
+                                    ignore_version = ignore_input.value
+                            else:
+                                ignore_input = cmd_inputs.itemById('ignoreVersionInDocName')
+                                if ignore_input:
+                                    ignore_version = ignore_input.value
+                        except Exception as e:
+                            LogUtils.warn(f'获取忽略版本号设置失败: {str(e)}')
+                        
                         # 获取导出配置
                         from .CommandExecuteHandler import CommandExecuteHandler
                         handler = CommandExecuteHandler(self.batch_exporter, self.handlers)
@@ -125,7 +141,7 @@ class CommandInputChangedHandler(adsk.core.InputChangedEventHandler):
                             ui.messageBox('❌ 请先创建Excel配置文件并添加至少一组导出配置')
                             changedInput.value = False
                             return
-                        self.batch_exporter.execute_batch_export(export_configs, export_path)
+                        self.batch_exporter.execute_batch_export(export_configs, export_path, ignore_version)
                         ui.messageBox('✅ 导出完成！\n\n💡 提示：\n• 所有配置已成功导出\n• 每个零件已保存到对应子目录\n• 您可以继续编辑Excel文件进行新的导出')
                     except Exception as e:
                         LogUtils.error(f'执行导出时发生错误: {str(e)}')
