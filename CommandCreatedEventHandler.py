@@ -63,6 +63,7 @@ class CommandCreatedEventHandler(adsk.core.CommandCreatedEventHandler):
             excelInputs.addBoolValueInput('selectExcelPath', '🔍 选择Excel文件...', False)
             # Excel操作按钮
             excelInputs.addBoolValueInput('exportTemplate', '📤 导出模板', False)
+            excelInputs.addBoolValueInput('openExcelFile', '📂 打开Excel文件', False)
             # 添加自定义批量导出按钮
             excelInputs.addBoolValueInput('batchExport', '🚀 批量导出', False)
             # 移除excelTip相关的addTextBoxCommandInput，不再添加Excel操作提示文本

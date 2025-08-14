@@ -92,6 +92,11 @@ class CommandInputChangedHandler(adsk.core.InputChangedEventHandler):
                     self.export_excel_template(cmd_inputs)
                     changedInput.value = False
                     
+            elif changedInput.id == 'openExcelFile':
+                if changedInput.value:
+                    self.open_excel_file(cmd_inputs)
+                    changedInput.value = False
+                    
             elif changedInput.id == 'exportPath':
                 try:
                     if changedInput.value:
@@ -213,5 +218,54 @@ class CommandInputChangedHandler(adsk.core.InputChangedEventHandler):
         except Exception as e:
             LogUtils.error(f'导出Excel模板时发生错误: {str(e)}')
             ui.messageBox(f'❌ 导出Excel模板时发生错误:\n{str(e)}')
+
+    def open_excel_file(self, inputs):
+        """打开Excel文件"""
+        try:
+            ui = adsk.core.Application.get().userInterface
+            
+            # 获取Excel文件路径
+            excel_group = inputs.itemById('excelGroup')
+            if excel_group:
+                excel_path_input = excel_group.children.itemById('excelPath')
+            else:
+                excel_path_input = inputs.itemById('excelPath')
+                
+            if not excel_path_input:
+                ui.messageBox('无法找到Excel路径输入')
+                return
+                
+            excel_path = excel_path_input.value.strip()
+            
+            if not excel_path:
+                ui.messageBox('❌ 请先选择Excel文件')
+                return
+                
+            if not os.path.exists(excel_path):
+                ui.messageBox(f'❌ Excel文件不存在：\n{excel_path}')
+                return
+            
+            # 使用操作系统默认程序打开Excel文件
+            try:
+                import subprocess
+                import platform
+                
+                system = platform.system()
+                if system == "Windows":
+                    os.startfile(excel_path)
+                elif system == "Darwin":  # macOS
+                    subprocess.run(["open", excel_path])
+                else:  # Linux
+                    subprocess.run(["xdg-open", excel_path])
+                    
+                LogUtils.info(f'已打开Excel文件: {excel_path}')
+                
+            except Exception as e:
+                LogUtils.error(f'打开Excel文件失败: {str(e)}')
+                ui.messageBox(f'❌ 打开Excel文件失败:\n{str(e)}\n\n请手动打开文件：\n{excel_path}')
+                
+        except Exception as e:
+            LogUtils.error(f'打开Excel文件时发生错误: {str(e)}')
+            ui.messageBox(f'❌ 打开Excel文件时发生错误:\n{str(e)}')
 
     # 彻底移除 save_current_configs_to_design 和 load_configs_to_ui 方法 
